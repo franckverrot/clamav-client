@@ -24,11 +24,7 @@ module ClamAV
       end
 
       def read_response(socket)
-        buff = ""
-        while (char = socket.getc) != "\n"
-          buff << char
-        end
-        buff
+        read_until(socket, "\n")
       end
     end
   end

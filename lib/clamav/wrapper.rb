@@ -18,5 +18,14 @@ module ClamAV
   class Wrapper
     def wrap_request(request);     raise NotImplementedError; end
     def unwrap_response(response); raise NotImplementedError; end
+
+    protected
+      def read_until(socket, delimiter)
+        buff = ""
+        while (char = socket.getc) != delimiter
+          buff << char
+        end
+        buff
+      end
   end
 end
