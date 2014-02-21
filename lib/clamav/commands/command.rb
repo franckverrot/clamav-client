@@ -13,20 +13,22 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 module ClamAV
   module Commands
     class Command
-      def call
-        raise NotImplementedError.new
-      end
+
+      def call; raise NotImplementedError.new; end
 
       protected
-      def execute
-        conn.puts data + "\n"
-        response = conn.gets.chomp
-        conn.close
-        response
-      end
+
+        def execute
+          conn.puts data + "\n"
+          response = conn.gets.chomp
+          conn.close
+          response
+        end
+
     end
   end
 end

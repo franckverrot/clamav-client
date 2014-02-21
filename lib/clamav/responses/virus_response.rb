@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'clamav/responses'
+
 module ClamAV
   class VirusResponse < Response
   end

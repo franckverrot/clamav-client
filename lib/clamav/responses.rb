@@ -25,6 +25,8 @@ module ClamAV
     end
 
     protected
+
       attr_reader :file
+
   end
 end

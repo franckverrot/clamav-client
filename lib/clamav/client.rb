@@ -30,7 +30,7 @@ module ClamAV
     end
 
     def execute(command)
-      command.(@connection)
+      command.call(@connection)
     end
 
     def default_connection
