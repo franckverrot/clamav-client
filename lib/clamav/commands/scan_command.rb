@@ -18,12 +18,13 @@ require 'clamav/commands/command'
 require 'clamav/responses/error_response'
 require 'clamav/responses/success_response'
 require 'clamav/responses/virus_response'
+
 module ClamAV
   module Commands
     class ScanCommand < Command
       Statuses = {
-        'ERROR' => ClamAV::ErrorResponse,
-        'OK' => ClamAV::SuccessResponse,
+        'OK'                          => ClamAV::SuccessResponse,
+        'ERROR'                       => ClamAV::ErrorResponse,
         'ClamAV-Test-Signature FOUND' => ClamAV::VirusResponse
       }
 
@@ -36,19 +37,21 @@ module ClamAV
       end
 
       protected
-      def scan_file(conn, file)
-        get_status_from_response(conn.send_request("SCAN #{file}"))
-      end
 
-      def get_status_from_response(str)
-        case str
-        when 'Error processing command. ERROR'
-          ErrorResponse.new(str)
-        else
-          /(?<id>\d+): (?<filepath>.*): (?<status>.*)/ =~ str
-          Statuses[status].new(filepath)
+        def scan_file(conn, file)
+          get_status_from_response(conn.send_request("SCAN #{file}"))
         end
-      end
+
+        def get_status_from_response(str)
+          case str
+          when 'Error processing command. ERROR'
+            ErrorResponse.new(str)
+          else
+            /(?<id>\d+): (?<filepath>.*): (?<status>.*)/ =~ str
+            Statuses[status].new(filepath)
+          end
+        end
+
     end
   end
 end
