@@ -30,15 +30,17 @@ Alternatively, you can spawn a `pry` console right away by just running:
 The `ClamAV::Client` class is responsible for opening a connection to a remote
 ClamAV clam daemon.
 
-You will find below the implemented commands.
+See the implemented commands below.
 
 ### PING => Boolean
 
 Pings the daemon to check whether it is alive.
 
-    client = ClamAV::Client.new
-    client.execute(ClamAV::Commands::PingCommand.new)
-    => true
+```ruby
+client = ClamAV::Client.new
+client.execute(ClamAV::Commands::PingCommand.new)
+# => true
+```
 
 ### SCAN <file_or_directory> => Array[Response]
 
@@ -46,56 +48,58 @@ Scans a file or a directory for the existence of a virus.
 
 The absolute path must be given to that command.
 
-    client = ClamAV::Client.new
+```ruby
+client = ClamAV::Client.new
 
-    client.execute(ClamAV::Commands::ScanCommand.new('/tmp/path/foo.c')
-    => [#<ClamAV::SuccessResponse:0x007fbf314b9478 @file="/tmp/foo.c">]
+client.execute(ClamAV::Commands::ScanCommand.new('/tmp/path/foo.c'))
+# => [#<ClamAV::SuccessResponse:0x007fbf314b9478 @file="/tmp/foo.c">]
 
-    client.execute(ClamAV::Commands::ScanCommand.new('/tmp/path')
-    => [#<ClamAV::SuccessResponse:0x007fc30c273298 @file="/tmp/path/foo.c">,
-     #<ClamAV::SuccessResponse:0x007fc30c272910 @file="/tmp/path/foo.cpp">]
-
+client.execute(ClamAV::Commands::ScanCommand.new('/tmp/path'))
+# => [#<ClamAV::SuccessResponse:0x007fc30c273298 @file="/tmp/path/foo.c">,
+#     #<ClamAV::SuccessResponse:0x007fc30c272910 @file="/tmp/path/foo.cpp">]
+```
 
 ### Custom commands
 
 Custom commands can be given to the client. The contract between the client
-and the command is thru the `call` method call. The `call` method is being
-passed a `Connection` object.
+and the command is through the `Command#call` method. The `call` method will
+receive a `Connection` object.
 
-Here's a simple example that implements the `VERSION` command:
+Here's a simple example implementing the `VERSION` command:
 
-    # Build the client
-    client = ClamAV::Client.new
+```ruby
+# Build the client
+client = ClamAV::Client.new
 
-    # Create the command lambda
-    version_command = lambda { |conn| conn.send_request("VERSION") }
-    => #<Proc:0x007fc0d0c14b28>
+# Create the command lambda
+version_command = lambda { |conn| conn.send_request("VERSION") }
+# => #<Proc:0x007fc0d0c14b28>
 
-    # Execute the command
-    client.execute(version_command)
-    => "1: ClamAV 0.98.1/18489/Tue Feb 18 16:00:05 2014"
-
+# Execute the command
+client.execute(version_command)
+# => "1: ClamAV 0.98.1/18489/Tue Feb 18 16:00:05 2014"
+```
 
 ## Defaults
 
 The default values in use are:
 
-  * clamd socket: UNIX Socket, located at `/tmp/clamd/socket`;
+  * clamd socket: UNIX Socket, located at `/tmp/clamd.socket`;
   * New-line terminated commands.
 
-These defaults can be changed by injecting new defaults.
+These defaults can be changed by injecting new values.
 
 ## Injecting dependencies
 
 ### Client
 
 The main object is the `Client` object. It is responsible for executing the commands.
-This object can receive a custom connection object.
+It can receive a custom connection object.
 
 ### Connection
 
-The connection object is the bridge between the raw socket object and the
-protocol being used between the client and the daemon.
+The `Connection` object is the bridge between the raw socket object and the
+protocol used between the client and the daemon.
 
 `clamd` supports two kinds of delimiters:
 
