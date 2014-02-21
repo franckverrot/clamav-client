@@ -17,18 +17,7 @@
 module ClamAV
   module Commands
     class Command
-
       def call; raise NotImplementedError.new; end
-
-      protected
-
-        def execute
-          conn.puts data + "\n"
-          response = conn.gets.chomp
-          conn.close
-          response
-        end
-
     end
   end
 end
