@@ -18,7 +18,7 @@ require 'test_helper'
 
 describe "ClamAV::Connection" do
   let(:wrapper_mock) { Minitest::Mock.new }
-  let(:socket_mock)    { Minitest::Mock.new }
+  let(:socket_mock)  { Minitest::Mock.new }
 
   it "requires a port and a wrapper" do
     assert_raises(ArgumentError) { ClamAV::Connection.new }

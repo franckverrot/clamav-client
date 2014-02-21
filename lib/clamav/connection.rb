@@ -18,9 +18,16 @@ require 'socket'
 
 module ClamAV
   class Connection
-    def initialize(socket:, wrapper:)
-      @socket = socket
-      @wrapper = wrapper
+    def initialize(args)
+      socket  = args.fetch(:socket)  { missing_required_argument(:socket) }
+      wrapper = args.fetch(:wrapper) { missing_required_argument(:wrapper) }
+
+      if socket && wrapper
+        @socket = socket
+        @wrapper = wrapper
+      else
+        raise ArgumentError
+      end
     end
 
     def establish_connection
@@ -32,6 +39,11 @@ module ClamAV
       wrapped_request = @wrapper.wrap_request(str)
       @socket.write wrapped_request
       @wrapper.read_response(@socket)
+    end
+
+    private
+    def missing_required_argument(key)
+      raise ArgumentError, "#{key} is required"
     end
   end
 end
