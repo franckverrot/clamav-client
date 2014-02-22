@@ -22,7 +22,7 @@ Alternatively, you can spawn a `pry` console right away by just running:
 
 ## Requirements
 
-* Ruby >= 2 (and Ruby >= 2.1 to be able to contribute to the project as it's making use of required keyword arguments)
+* Ruby >= 1.9.2
 * clamd
 
 ## Usage
