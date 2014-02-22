@@ -21,7 +21,7 @@ module ClamAV
     end
 
     def ==(other)
-      @file == other.file
+      @file == other.file && self.class == other.class
     end
 
     protected
