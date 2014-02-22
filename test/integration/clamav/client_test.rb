@@ -53,5 +53,20 @@ describe "ClamAV::Client Integration Tests" do
         assert_equal expected_results, results
       end
     end
+
+    describe "instream" do
+      it "can be started" do
+        dir = File.expand_path('../../../../test/fixtures', __FILE__)
+
+        [
+          ['clamavtest.txt', ClamAV::VirusResponse],
+          ['innocent.txt',   ClamAV::SuccessResponse]
+        ].each do |file, response_class|
+          io      = File.open(File.join(dir, file))
+          command = ClamAV::Commands::InstreamCommand.new(io)
+          client.execute(command).must_equal response_class.new("stream")
+        end
+      end
+    end
   end
 end

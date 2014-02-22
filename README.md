@@ -59,6 +59,18 @@ client.execute(ClamAV::Commands::ScanCommand.new('/tmp/path'))
 #     #<ClamAV::SuccessResponse:0x007fc30c272910 @file="/tmp/path/foo.cpp">]
 ```
 
+### INSTREAM => Response
+
+Scans an IO-like object for the existence of a virus.
+
+```ruby
+client = ClamAV::Client.new
+
+io = StringIO.new('some data')
+client.execute(ClamAV::Commands::InstreamCommand.new(io))
+# => [#<ClamAV::SuccessResponse:0x007fe471cabe50 @file="stream">]
+```
+
 ### Custom commands
 
 Custom commands can be given to the client. The contract between the client

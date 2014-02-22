@@ -29,4 +29,11 @@ describe "ClamAV::Connection" do
   it "can be constructed with a port and wrapper class" do
     ClamAV::Connection.new(socket: socket_mock, wrapper: wrapper_mock)
   end
+
+  it "support raw writes" do
+    socket_mock.expect(:write, nil, ["foo"])
+
+    conn = ClamAV::Connection.new(socket: socket_mock, wrapper: wrapper_mock)
+    conn.raw_write("foo")
+  end
 end

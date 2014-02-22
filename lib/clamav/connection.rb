@@ -35,10 +35,22 @@ module ClamAV
       @socket.write wrapped_request
     end
 
-    def send_request(str)
+    def write_request(str)
       wrapped_request = @wrapper.wrap_request(str)
       @socket.write wrapped_request
+    end
+
+    def read_response
       @wrapper.read_response(@socket)
+    end
+
+    def send_request(str)
+      write_request(str)
+      read_response
+    end
+
+    def raw_write(str)
+      @socket.write str
     end
 
     private

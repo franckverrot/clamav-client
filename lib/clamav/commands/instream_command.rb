@@ -14,8 +14,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-gem 'minitest'
+require 'clamav/commands/command'
 
-require 'minitest/autorun'
-require 'clamav/client'
-require 'pry'
+module ClamAV
+  module Commands
+    class InstreamCommand < Command
+
+      def initialize(io, max_chunk_size = 1024)
+        @io = begin io rescue raise ArgumentError, 'io is required', caller; end
+        @max_chunk_size = max_chunk_size
+      end
+
+      def call(conn)
+        conn.write_request("INSTREAM")
+
+        while(packet = @io.read(@max_chunk_size))
+          packet_size = [packet.size].pack("N")
+          conn.raw_write("#{packet_size}#{packet}")
+        end
+        conn.raw_write("\x00\x00\x00\x00")
+        get_status_from_response(conn.read_response)
+      end
+
+    end
+  end
+end

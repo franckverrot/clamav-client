@@ -15,18 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require 'clamav/commands/command'
-require 'clamav/responses/error_response'
-require 'clamav/responses/success_response'
-require 'clamav/responses/virus_response'
 
 module ClamAV
   module Commands
     class ScanCommand < Command
-      Statuses = {
-        'OK'                          => ClamAV::SuccessResponse,
-        'ERROR'                       => ClamAV::ErrorResponse,
-        'ClamAV-Test-Signature FOUND' => ClamAV::VirusResponse
-      }
 
       def initialize(path, path_finder = Util)
         @path, @path_finder = path, path_finder
@@ -36,21 +28,9 @@ module ClamAV
         @path_finder.path_to_files(@path).map { |file| scan_file(conn, file) }
       end
 
-      protected
-
-        def scan_file(conn, file)
-          get_status_from_response(conn.send_request("SCAN #{file}"))
-        end
-
-        def get_status_from_response(str)
-          case str
-          when 'Error processing command. ERROR'
-            ErrorResponse.new(str)
-          else
-            /(?<id>\d+): (?<filepath>.*): (?<status>.*)/ =~ str
-            Statuses[status].new(filepath)
-          end
-        end
+      def scan_file(conn, file)
+        get_status_from_response(conn.send_request("SCAN #{file}"))
+      end
 
     end
   end
