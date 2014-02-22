@@ -3,7 +3,7 @@ $:<< 'lib'
 
 Gem::Specification.new do |spec|
   spec.name          = "clamav-client"
-  spec.version       = "2.0.0"
+  spec.version       = "2.0.1"
   spec.authors       = ["Franck Verrot"]
   spec.email         = ["franck@verrot.fr"]
   spec.summary       = %q{ClamAV::Client connects to a Clam Anti-Virus clam daemon and send commands.}
