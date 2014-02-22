@@ -84,19 +84,22 @@ client.execute(version_command)
 
 The default values in use are:
 
-  * clamd socket: UNIX Socket, located at `/tmp/clamd.socket`;
+  * clamd socket: UNIX Socket, located at `/var/run/clamav/clamd.ctl`;
   * New-line terminated commands.
 
-These defaults can be changed by injecting new values.
+These defaults can be changed:
 
-## Injecting dependencies
+  * by creating the object graph manually;
+  * by setting environment variables.
 
-### Client
+### The object graph
+
+#### Client
 
 The main object is the `Client` object. It is responsible for executing the commands.
 It can receive a custom connection object.
 
-### Connection
+#### Connection
 
 The `Connection` object is the bridge between the raw socket object and the
 protocol used between the client and the daemon.
@@ -108,12 +111,43 @@ protocol used between the client and the daemon.
 
 The management of those delimiters is done with the wrapper argument.
 
-### Wrapper
+#### Wrapper
 
 The wrapper is responsible for taking the incoming request with the
 `wrap_request` method, and parsing the response with the `read_response`
 method.
 
+### Environment variables
+
+The variables can be set programmatically in your Ruby programs like
+
+```ruby
+# from a ruby script
+ENV['CLAMD_UNIX_SOCKET'] = '/some/path'
+
+# Now the defaults are changed for any new ClamAV::Client instantiation
+```
+
+or by setting the variables before starting the Ruby process:
+
+```
+# from the command-line
+export CLAMD_UNIX_SOCKET = '/some/path'
+ruby my_program.rb
+# or
+CLAMD_UNIX_SOCKET = '/some/path' ruby my_program.rb
+```
+
+Please note that setting the `CLAMD_TCP_*` variables will have the precedence
+over the `CLAMD_UNIX_SOCKET`.
+
+#### CLAMD_UNIX_SOCKET
+
+Sets the socket path of the ClamAV daemon.
+
+#### CLAMD_TCP_HOST and CLAMD_TCP_PORT
+
+Sets the host and port of the ClamAV daemon.
 
 ## Contributing
 

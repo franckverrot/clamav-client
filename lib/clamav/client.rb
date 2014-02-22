@@ -35,9 +35,18 @@ module ClamAV
 
     def default_connection
       ClamAV::Connection.new(
-        socket: ::UNIXSocket.new('/tmp/clamd.socket'),
+        socket: resolve_default_socket,
         wrapper: ::ClamAV::Wrappers::NewLineWrapper.new
       )
+    end
+
+    def resolve_default_socket
+      unix_socket, tcp_host, tcp_port = ENV.values_at('CLAMD_UNIX_SOCKET', 'CLAMD_TCP_HOST', 'CLAMD_TCP_PORT')
+      if tcp_host && tcp_port
+        ::TCPSocket.new(tcp_host, tcp_port)
+      else
+        ::UNIXSocket.new(unix_socket || '/var/run/clamav/clamd.ctl')
+      end
     end
   end
 end
