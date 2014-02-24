@@ -19,6 +19,22 @@ Or install it yourself as:
 Alternatively, you can spawn a `pry` console right away by just running:
 
     $ rake console
+    
+### Installing ClamAV's daemon
+
+#### On OSX
+
+If you are using brew, just run
+
+```shell
+brew install clamav
+```
+#### On Linux (Ubuntu)
+```shell
+sudo apt-get install clamav-daemon clamav-freshclam clamav-unofficial-sigs
+sudo freshclam
+sudo service clamav-daemon start
+```
 
 ## Requirements
 
