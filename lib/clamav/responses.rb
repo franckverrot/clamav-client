@@ -16,17 +16,17 @@
 
 module ClamAV
   class Response
-    def initialize(file)
+    def initialize(file, status, virus_name=nil)
       @file = file
+      @status = status
+      @virus_name = virus_name
     end
 
     def ==(other)
       @file == other.file && self.class == other.class
     end
 
-    protected
-
-      attr_reader :file
+    attr_reader :file, :status, :virus_name
 
   end
 end

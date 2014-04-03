@@ -24,7 +24,7 @@ module ClamAV
       Statuses = {
         'OK'                          => ClamAV::SuccessResponse,
         'ERROR'                       => ClamAV::ErrorResponse,
-        'ClamAV-Test-Signature FOUND' => ClamAV::VirusResponse
+        'FOUND'                       => ClamAV::VirusResponse
       }
 
       def call; raise NotImplementedError.new; end
@@ -34,10 +34,10 @@ module ClamAV
         def get_status_from_response(str)
           case str
           when 'Error processing command. ERROR'
-            ErrorResponse.new(str)
+            ErrorResponse.new(nil, 'ERROR')
           else
-            /(?<id>\d+): (?<filepath>.*): (?<status>.*)/ =~ str
-            Statuses[status].new(filepath)
+            /(?<id>\d+): (?<filepath>.*): (?<virus_name>.*)\s?(?<status>(OK|FOUND))/ =~ str
+            Statuses[status].new(filepath, status, virus_name)
           end
         end
 
