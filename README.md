@@ -35,6 +35,13 @@ sudo apt-get install clamav-daemon clamav-freshclam clamav-unofficial-sigs
 sudo freshclam
 sudo service clamav-daemon start
 ```
+#### On Linux (RedHat, CentOS)
+```shell
+sudo yum install clamd clamav clamav-db
+sudo freshclam
+sudo service clamd start
+```
+Under RedHat/CentOS the UNIX Socket, located at `/var/run/clamav/clamd.sock`;
 
 ## Requirements
 
