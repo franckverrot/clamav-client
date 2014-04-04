@@ -21,23 +21,19 @@ require 'clamav/responses/virus_response'
 module ClamAV
   module Commands
     class Command
-      Statuses = {
-        'OK'                          => ClamAV::SuccessResponse,
-        'ERROR'                       => ClamAV::ErrorResponse,
-        'ClamAV-Test-Signature FOUND' => ClamAV::VirusResponse
-      }
 
       def call; raise NotImplementedError.new; end
 
       protected
 
+        # OK response looks like "1: stream: OK" or "1: /tmp/NOT_A_VIRUS.TXT: OK"
+        # FOUND response looks like "1: stream: Eicar-Test-Signature FOUND" or "1: /tmp/EICAR.COM: Eicar-Test-Signature FOUND"
         def get_status_from_response(str)
-          case str
-          when 'Error processing command. ERROR'
-            ErrorResponse.new(str)
-          else
-            /(?<id>\d+): (?<filepath>.*): (?<status>.*)/ =~ str
-            Statuses[status].new(filepath)
+          /^(?<id>\d+): (?<filepath>.*): (?<virus_name>.*)\s?(?<status>(OK|FOUND))$/ =~ str
+          case status
+          when 'OK' then ClamAV::SuccessResponse.new(filepath)
+          when 'FOUND' then ClamAV::VirusResponse.new(filepath, virus_name)
+          else ClamAV::ErrorResponse.new(str)
           end
         end
 
