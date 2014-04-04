@@ -16,17 +16,13 @@
 
 module ClamAV
   class Response
-    def initialize(file, status, virus_name=nil)
-      @file = file
-      @status = status
-      @virus_name = virus_name
-    end
 
+    attr_reader :file, :virus_name, :error_str
+
+    # Not sure if this is still required?
     def ==(other)
       @file == other.file && self.class == other.class
     end
-
-    attr_reader :file, :status, :virus_name
 
   end
 end
