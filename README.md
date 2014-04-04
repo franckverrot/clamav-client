@@ -179,6 +179,7 @@ over the `CLAMD_UNIX_SOCKET`.
 #### CLAMD_UNIX_SOCKET
 
 Sets the socket path of the ClamAV daemon.
+
 Under RedHat/CentOS this can either be set via an environment variable (above) or in the ClamAV::Connection call
 ```
 connection = ClamAV::Connection.new(socket: ::UNIXSocket.new('/var/run/clamav/clamd.sock'), wrapper: ::ClamAV::Wrappers::NewLineWrapper.new)
