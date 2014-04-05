@@ -19,7 +19,7 @@ Or install it yourself as:
 Alternatively, you can spawn a `pry` console right away by just running:
 
     $ rake console
-    
+
 ### Installing ClamAV's daemon
 
 #### On OSX

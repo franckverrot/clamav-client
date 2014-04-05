@@ -18,11 +18,11 @@ require 'clamav/responses'
 
 module ClamAV
   class VirusResponse < Response
-    
+
     def initialize(file, virus_name)
       @file = file
       @virus_name = virus_name
     end
-    
+
   end
 end

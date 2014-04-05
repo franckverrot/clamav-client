@@ -18,10 +18,10 @@ require 'clamav/responses'
 
 module ClamAV
   class SuccessResponse < Response
-    
+
     def initialize(file)
       @file = file
     end
-    
+
   end
 end

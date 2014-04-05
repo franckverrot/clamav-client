@@ -18,10 +18,10 @@ require 'clamav/responses'
 
 module ClamAV
   class ErrorResponse < Response
-    
+
     def initialize(error_str)
       @error_str = error_str
     end
-    
+
   end
 end
