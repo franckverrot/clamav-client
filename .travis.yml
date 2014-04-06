@@ -9,6 +9,7 @@ rvm:
   - jruby-head
   - rbx
 before_install:
+  - sudo apt-get update
   - sudo apt-get install clamav-daemon clamav-freshclam clamav-unofficial-sigs
   - sudo freshclam
   - sudo service clamav-daemon start
