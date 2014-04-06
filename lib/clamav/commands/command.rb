@@ -32,7 +32,7 @@ module ClamAV
           /^(?<id>\d+): (?<filepath>.*): (?<virus_name>.*)\s?(?<status>(OK|FOUND))$/ =~ str
           case status
           when 'OK' then ClamAV::SuccessResponse.new(filepath)
-          when 'FOUND' then ClamAV::VirusResponse.new(filepath, virus_name)
+          when 'FOUND' then ClamAV::VirusResponse.new(filepath, virus_name.strip)
           else ClamAV::ErrorResponse.new(str)
           end
         end
