@@ -45,9 +45,9 @@ describe "ClamAV::Client Integration Tests" do
         results = client.execute(ClamAV::Commands::ScanCommand.new(dir))
 
         expected_results = [
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.gz"),
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.txt"),
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.zip"),
+          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.gz",  "ClamAV-Test-Signature"),
+          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.txt", "ClamAV-Test-Signature"),
+          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.zip", "ClamAV-Test-Signature"),
           ClamAV::SuccessResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/innocent.txt")
         ]
         assert_equal expected_results, results
@@ -55,17 +55,21 @@ describe "ClamAV::Client Integration Tests" do
     end
 
     describe "instream" do
-      it "can be started" do
-        dir = File.expand_path('../../../../test/fixtures', __FILE__)
+      let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
 
-        [
-          ['clamavtest.txt', ClamAV::VirusResponse],
-          ['innocent.txt',   ClamAV::SuccessResponse]
-        ].each do |file, response_class|
-          io      = File.open(File.join(dir, file))
-          command = ClamAV::Commands::InstreamCommand.new(io)
-          client.execute(command).must_equal response_class.new("stream")
-        end
+      it "can recognize a sane file" do
+        command = build_command_for_file('innocent.txt')
+        client.execute(command).must_equal ClamAV::SuccessResponse.new("stream")
+      end
+
+      it "can recognize an infected file" do
+        command = build_command_for_file('clamavtest.txt')
+        client.execute(command).must_equal ClamAV::VirusResponse.new("stream", "ClamAV-Test-Signature")
+      end
+
+      def build_command_for_file(file)
+        io = File.open(File.join(dir, file))
+        ClamAV::Commands::InstreamCommand.new(io)
       end
     end
   end
