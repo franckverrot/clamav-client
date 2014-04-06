@@ -8,11 +8,7 @@ rvm:
   - jruby-19mode
   - jruby-head
   - rbx
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install clamav-daemon clamav-freshclam clamav-unofficial-sigs
-  - sudo freshclam
-  - sudo service clamav-daemon start
+before_install: "sudo ./test/ci-setup.sh"
 env:
-  - CLAMD_UNIX_SOCKET=/var/run/clamav/clamd.sock
+  - CLAMD_UNIX_SOCKET=/var/run/clamav/clamd.ctl
 script: rake
