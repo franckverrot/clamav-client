@@ -40,17 +40,23 @@ describe "ClamAV::Client Integration Tests" do
     end
 
     describe "scan" do
+      let(:base_path) { File.expand_path('../../../../', __FILE__) }
+
       it "can be started" do
-        dir = File.expand_path('../../../../test/fixtures', __FILE__)
+        dir = File.join(base_path, 'test/fixtures')
         results = client.execute(ClamAV::Commands::ScanCommand.new(dir))
 
-        expected_results = [
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.gz",  "ClamAV-Test-Signature"),
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.txt", "ClamAV-Test-Signature"),
-          ClamAV::VirusResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/clamavtest.zip", "ClamAV-Test-Signature"),
-          ClamAV::SuccessResponse.new("/Users/cesario/Development/clamav-client/test/fixtures/innocent.txt")
-        ]
-        assert_equal expected_results, results
+        expected_results = {
+          "#{base_path}/test/fixtures/clamavtest.gz"  => ClamAV::VirusResponse,
+          "#{base_path}/test/fixtures/clamavtest.txt" => ClamAV::VirusResponse,
+          "#{base_path}/test/fixtures/clamavtest.zip" => ClamAV::VirusResponse,
+          "#{base_path}/test/fixtures/innocent.txt"   => ClamAV::SuccessResponse
+        }
+
+        results.each do |result|
+          expected_result = expected_results[result.file]
+          assert_equal expected_result, result.class
+        end
       end
     end
 

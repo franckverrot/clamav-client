@@ -20,20 +20,20 @@ describe "ClamAV::Client Integration Tests" do
     describe "absolute_path" do
       it "transforms a single file to an array of one element" do
         expected_path = File.absolute_path(__FILE__)
-        actual_path   = Regexp.new(".*/#{ClamAV::Util.path_to_files(__FILE__).first}")
-        assert actual_path.match(expected_path)
+        actual_path   = ClamAV::Util.path_to_files(__FILE__).first
+        assert_equal expected_path, actual_path
       end
 
       it "transforms a directory to an array of N element" do
         files = %w(
-          /Users/cesario/Development/clamav-client/test/integration/clamav/client_test.rb
-          /Users/cesario/Development/clamav-client/test/integration/clamav/util_test.rb
-        )
-        actual_files = ClamAV::Util.path_to_files(File.dirname(__FILE__))
+          clamav-client/test/integration/clamav/client_test.rb
+          clamav-client/test/integration/clamav/util_test.rb
+        ).sort
+        actual_files = ClamAV::Util.path_to_files(File.dirname(__FILE__)).sort
 
         files.each_with_index do |file, index|
-          actual_path   = Regexp.new(".*/#{actual_files[index]}")
-          assert actual_path.match(file)
+          path   = Regexp.new(".*/#{file}")
+          assert path.match(actual_files[index])
         end
       end
     end
