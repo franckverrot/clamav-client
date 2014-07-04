@@ -1,9 +1,11 @@
-# Unreleased (3.0.0)
+# Unreleased (3.0.1)
 
-  * README:       Added instructions to install ClamAV on Ubuntu, RedHat and CentOS
-  * INSTREAM:     fixed a problem parsing the "FOUND" response
+# 3.0.0
+
+  * README.md: Added instructions to install ClamAV on Ubuntu, RedHat and CentOS
+  * INSTREAM: fixed a problem parsing the "FOUND" response
   * VirusReponse: The virus file name is now held by the VirusReponse object
-
+  * test/ci-setup.sh : Configure ClamAV on the CI
 
 # 2.0.1
 
