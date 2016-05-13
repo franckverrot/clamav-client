@@ -1,11 +1,8 @@
 language: ruby
 rvm:
-  - 2.1.0
-  - 2.0.0
-  - 1.9.3
-  - 1.9.2
+  - 2.3.1
+  - 2.2.5
   - ruby-head
-  - jruby-19mode
   - jruby-head
   - rbx
 before_install: "sudo ./test/ci-setup.sh"

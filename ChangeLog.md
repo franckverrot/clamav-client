@@ -1,5 +1,8 @@
 # Unreleased (3.0.1)
 
+  * Drop support for old Rubies (prior to 2.2)
+  * Drop fixtures from the gem
+
 # 3.0.0
 
   * README.md: Added instructions to install ClamAV on Ubuntu, RedHat and CentOS
