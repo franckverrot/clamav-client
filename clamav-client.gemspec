@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{ClamAV::Client connects to a Clam Anti-Virus clam daemon and send commands.}
   spec.description   = spec.summary
   spec.homepage      = "https://github.com/franckverrot/clamav-client"
-  spec.license       = "GPLv3"
+  spec.license       = "GPL-v3"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
