@@ -1,4 +1,6 @@
-# Unreleased (3.0.1)
+# Unreleased (3.1.0)
+
+# 3.0.1
 
   * Drop support for old Rubies (prior to 2.2)
   * Drop fixtures from the gem
