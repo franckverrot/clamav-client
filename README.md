@@ -190,6 +190,10 @@ client = ClamAV::Client.new(connection)
 
 Sets the host and port of the ClamAV daemon.
 
+## Licensing
+
+GPLv3. COMMERCIAL license available upon request.
+
 ## Contributing
 
 1. Fork it ( https://github.com/franckverrot/clamav-client/fork )
