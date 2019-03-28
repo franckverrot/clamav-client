@@ -1,32 +1,19 @@
-# clamav-client - ClamAV client
-# Copyright (C) 2014 Franck Verrot <franck@verrot.fr>
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-require 'socket'
-require 'timeout'
-
 module ClamAV
-  class Client
+  class Base
     class Error < StandardError; end
     class ConnectionError < Error; end
     class ConnectTimeoutError < ConnectionError; end
     class ReadTimeoutError < ConnectionError; end
     class WriteTimeoutError < ConnectionError; end
 
-    attr_accessor :options
+    attr_writer :unix_socket
+    attr_writer :tcp_host
+    attr_writer :tcp_port
+    attr_writer :connect_timeout
+    attr_writer :write_timeout
+    attr_writer :read_timeout
     attr_writer :connection
+    attr_accessor :options
 
     def initialize(*args)
       args.each do |arg|
@@ -34,18 +21,12 @@ module ClamAV
         when Connection
           @connection = arg
         when Hash
-          @options = env_options.inject({}) do |acc, (option, default)|
-            acc[option] = arg[option] || default
-            acc
-          end
+          @options = arg.reverse_merge(env_options)
         end
       end
     end
 
     [
-      :unix_socket,
-      :tcp_host,
-      :tcp_port,
       :connect_timeout,
       :write_timeout,
       :read_timeout,
@@ -61,12 +42,9 @@ module ClamAV
 
     def env_options
       @env_options ||= {
-        unix_socket: ENV.fetch('CLAMD_UNIX_SOCKET', '/var/run/clamav/clamd.ctl'),
-        tcp_host: ENV.fetch('CLAMD_TCP_HOST', nil),
-        tcp_port: ENV.fetch('CLAMD_TCP_PORT', nil),
         connect_timeout: ENV.fetch("CLAMD_TCP_CONNECT_TIMEOUT", nil),
-        write_timeout: ENV.fetch("CLAMD_TCP_WRITE_TIMEOUT", nil),
-        read_timeout: ENV.fetch("CLAMD_TCP_READ_TIMEOUT", nil),
+        write_timeout: ENV.fetch("CLAMD_TCP_WRITE_TIMEOUT", nil)
+        read_timeout: ENV.fetch("CLAMD_TCP_READ_TIMEOUT", nil)
       }
     end
 
@@ -122,28 +100,8 @@ module ClamAV
       @connection = nil
     end
 
-    def tcp?
-      !!tcp_host && !!tcp_port
-    end
-
-    def file?
-      !tcp
-    end
-
     def build_socket
-      return Socket.tcp(tcp_host, tcp_port, tcp_opts) if tcp?
-
-      ::UNIXSocket.new(unix_socket)
-    rescue Errno::ETIMEDOUT => e
-      raise ConnectTimeoutError.new(e.to_s)
-    rescue SocketError, Errno::ECONNRESET, Errno::ECONNREFUSED => e
-      raise ConnectionError.new(e.to_s)
-    end
-
-    def tcp_opts
-      {}.tap do |o|
-        o[:connect_timeout] = connect_timeout if connect_timeout
-      end
+      raise NotImplementedError
     end
 
     def ping
@@ -163,12 +121,3 @@ module ClamAV
     end
   end
 end
-
-require "clamav/connection"
-require "clamav/commands/ping_command"
-require "clamav/commands/quit_command"
-require "clamav/commands/scan_command"
-require "clamav/commands/instream_command"
-require "clamav/util"
-require "clamav/wrappers/new_line_wrapper"
-require "clamav/wrappers/null_termination_wrapper"
