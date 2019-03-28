@@ -14,27 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "clamav/connection"
-require "clamav/commands/ping_command"
-require "clamav/commands/quit_command"
-require "clamav/commands/scan_command"
-require "clamav/commands/instream_command"
-require "clamav/util"
-require "clamav/wrappers/new_line_wrapper"
-require "clamav/wrappers/null_termination_wrapper"
+require 'socket'
+require 'timeout'
 
 module ClamAV
-  DEBUG = ENV.fetch('DEBUG', '0').strip == '1'
-
   class Client
     class Error < StandardError; end
     class ConnectionError < Error; end
     class ConnectTimeoutError < ConnectionError; end
+    class ReadTimeoutError < ConnectionError; end
+    class WriteTimeoutError < ConnectionError; end
 
     attr_writer :unix_socket
     attr_writer :tcp_host
     attr_writer :tcp_port
     attr_writer :connect_timeout
+    attr_writer :write_timeout
+    attr_writer :read_timeout
     attr_writer :connection
 
     def initialize(*args)
@@ -61,7 +57,7 @@ module ClamAV
         disconnect!
 
         raise ConnectionError.new(e.to_s)
-      rescue Errno => e
+      rescue => e
         disconnect!
 
         raise e
@@ -70,17 +66,28 @@ module ClamAV
 
     def connection
       @connection ||= default_connection.tap do |conn|
-        puts "Establishing connection to #{tcp? && "#{tcp_host}:#{tcp_port}" || unix_socket}"
-
-        conn.establish_connection
+        connect!(conn)
       end
     end
 
     def default_connection
       ClamAV::Connection.new(
+        client: self,
         socket: build_socket,
         wrapper: ::ClamAV::Wrappers::NewLineWrapper.new
       )
+    end
+
+    def connect!(conn=nil)
+      (conn || @connection).establish_connection
+    rescue Errno::ETIMEDOUT => e
+      @connection = nil
+
+      raise ConnectTimeoutError.new(e.to_s)
+    rescue SocketError, Errno::ECONNRESET, Errno::ECONNREFUSED => e
+      @connection = nil
+
+      raise ConnectionError.new(e.to_s)
     end
 
     def disconnect!
@@ -115,6 +122,30 @@ module ClamAV
         end
     end
 
+    def read_timeout
+      @read_timeout ||=
+        case value = ENV.fetch('CLAMD_TCP_READ_TIMEOUT', nil)
+        when String
+          value.empty? && nil || value
+        when Integer
+          value
+        else
+          nil
+        end
+    end
+
+    def write_timeout
+      @write_timeout ||=
+        case value = ENV.fetch('CLAMD_TCP_WRITE_TIMEOUT', nil)
+        when String
+          value.empty? && nil || value
+        when Integer
+          value
+        else
+          nil
+        end
+    end
+
     def tcp?
       !!tcp_host && !!tcp_port
     end
@@ -127,6 +158,10 @@ module ClamAV
       return Socket.tcp(tcp_host, tcp_port, tcp_opts) if tcp?
 
       ::UNIXSocket.new(unix_socket)
+    rescue Errno::ETIMEDOUT => e
+      raise ConnectTimeoutError.new(e.to_s)
+    rescue SocketError, Errno::ECONNRESET, Errno::ECONNREFUSED => e
+      raise ConnectionError.new(e.to_s)
     end
 
     def tcp_opts
@@ -152,3 +187,12 @@ module ClamAV
     end
   end
 end
+
+require "clamav/connection"
+require "clamav/commands/ping_command"
+require "clamav/commands/quit_command"
+require "clamav/commands/scan_command"
+require "clamav/commands/instream_command"
+require "clamav/util"
+require "clamav/wrappers/new_line_wrapper"
+require "clamav/wrappers/null_termination_wrapper"
