@@ -32,16 +32,26 @@ module ClamAV
 
     def establish_connection
       wrapped_request = @wrapper.wrap_request("IDSESSION")
+
+      puts "Writing request: #{wrapped_request}" if DEBUG
+
       @socket.write wrapped_request
     end
 
     def write_request(str)
       wrapped_request = @wrapper.wrap_request(str)
+
+      puts "Writing request: #{wrapped_request}" if DEBUG
+
       @socket.write wrapped_request
     end
 
     def read_response
-      @wrapper.read_response(@socket)
+      @wrapper.read_response(@socket).tap do |r|
+
+        puts "Read Response: #{r}" if DEBUG
+
+      end
     end
 
     def send_request(str)
