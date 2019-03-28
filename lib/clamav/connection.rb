@@ -18,6 +18,8 @@ require 'socket'
 
 module ClamAV
   class Connection
+    attr_accessor :socket
+
     def initialize(args)
       socket  = args.fetch(:socket)  { missing_required_argument(:socket) }
       wrapper = args.fetch(:wrapper) { missing_required_argument(:wrapper) }
@@ -49,8 +51,20 @@ module ClamAV
     def read_response
       @wrapper.read_response(@socket).tap do |r|
 
-        puts "Read Response: #{r}" if DEBUG
+      puts "Read Response: #{r}" if DEBUG
 
+      end
+    end
+
+    def disconnect!
+      return true if @socket.nil?
+
+      @socket.closed?
+
+      puts "Disconnecting..." if DEBUG
+
+      @socket.closed?.tap do
+        @socket = nil
       end
     end
 

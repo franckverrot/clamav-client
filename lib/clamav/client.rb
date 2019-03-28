@@ -54,23 +54,41 @@ module ClamAV
       begin
         command.call(connection)
       rescue Errno::ETIMEDOUT => e
+        disconnect!
+
         raise ConnectTimeoutError.new(e.to_s)
-      rescue SocketError => e
+      rescue SocketError, Errno::ECONNRESET, Errno::ECONNREFUSED, Errno::ENETDOWN  => e
+        disconnect!
+
         raise ConnectionError.new(e.to_s)
+      rescue Errno => e
+        disconnect!
+
+        raise e
       end
     end
 
     def connection
       @connection ||= default_connection.tap do |conn|
+        puts "Establishing connection to #{tcp? && "#{tcp_host}:#{tcp_port}" || unix_socket}"
+
         conn.establish_connection
       end
     end
 
     def default_connection
       ClamAV::Connection.new(
-        socket: resolve_default_socket,
+        socket: build_socket,
         wrapper: ::ClamAV::Wrappers::NewLineWrapper.new
       )
+    end
+
+    def disconnect!
+      return true if @connection.nil?
+
+      @connection.disconnect!
+
+      @connection = nil
     end
 
     def tcp_host
@@ -86,13 +104,15 @@ module ClamAV
     end
 
     def connect_timeout
-      @connect_timeout ||= ENV.fetch('CLAMD_TCP_CONNECT_TIMEOUT', nil)
-
-      return @connect_timeout if @connect_timeout.nil?
-
-      @connect_timeout = nil if @connect_timeout.empty?
-
-      @connect_timeout
+      @connect_timeout ||=
+        case value = ENV.fetch('CLAMD_TCP_CONNECT_TIMEOUT', nil)
+        when String
+          value.empty? && nil || value
+        when Integer
+          value
+        else
+          nil
+        end
     end
 
     def tcp?
@@ -103,7 +123,7 @@ module ClamAV
       !tcp
     end
 
-    def socket
+    def build_socket
       return Socket.tcp(tcp_host, tcp_port, tcp_opts) if tcp?
 
       ::UNIXSocket.new(unix_socket)
@@ -112,14 +132,6 @@ module ClamAV
     def tcp_opts
       {}.tap do |o|
         o[:connect_timeout] = connect_timeout if connect_timeout
-      end
-    end
-
-    def resolve_default_socket
-      if tcp_host && tcp_port
-        Socket.tcp(tcp_host, tcp_port, tcp_opts)
-      else
-        ::UNIXSocket.new(unix_socket || '/var/run/clamav/clamd.ctl')
       end
     end
 
