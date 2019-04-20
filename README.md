@@ -45,7 +45,7 @@ Under RedHat/CentOS the UNIX Socket, located at `/var/run/clamav/clamd.sock`
 
 ## Requirements
 
-* Ruby >= 1.9.2
+* Ruby >= 2.4
 * clamd
 
 ## Usage
