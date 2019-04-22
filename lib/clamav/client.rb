@@ -49,5 +49,9 @@ module ClamAV
         ::UNIXSocket.new(unix_socket || '/var/run/clamav/clamd.ctl')
       end
     end
+
+    def ping
+      execute Commands::PingCommand.new
+    end
   end
 end

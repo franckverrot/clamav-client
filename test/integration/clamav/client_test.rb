@@ -37,6 +37,10 @@ describe "ClamAV::Client Integration Tests" do
         assert client.execute(ping_command)
         assert client.execute(ping_command)
       end
+
+      it 'can be used as #ping' do
+        assert_equal client.execute(ping_command), client.ping
+      end
     end
 
     describe "scan" do
