@@ -38,16 +38,16 @@ describe "ClamAV::Client Integration Tests" do
         assert client.execute(ping_command)
       end
 
-      it 'can be used as #ping' do
+      it "can be used as #ping" do
         assert_equal client.execute(ping_command), client.ping
       end
     end
 
     describe "scan" do
       let(:base_path) { File.expand_path('../../../../', __FILE__) }
+      let(:dir) { File.join(base_path, 'test/fixtures') }
 
       it "can be started" do
-        dir = File.join(base_path, 'test/fixtures')
         results = client.execute(ClamAV::Commands::ScanCommand.new(dir))
 
         expected_results = {
@@ -62,6 +62,10 @@ describe "ClamAV::Client Integration Tests" do
           assert_equal expected_result, result.class
         end
       end
+
+      it "can be used as #scan" do
+        assert_equal client.execute(ClamAV::Commands::ScanCommand.new(dir)), client.send(:scan, dir)
+      end
     end
 
     describe "instream" do
@@ -75,6 +79,11 @@ describe "ClamAV::Client Integration Tests" do
       it "can recognize an infected file" do
         command = build_command_for_file('clamavtest.txt')
         client.execute(command).must_equal ClamAV::VirusResponse.new("stream", "ClamAV-Test-Signature")
+      end
+
+      it "can be used as #instream" do
+        io = File.open(File.join(dir, 'innocent.txt'))
+        assert_equal client.execute(ClamAV::Commands::InstreamCommand.new(io)), client.send(:instream, io)
       end
 
       def build_command_for_file(file)

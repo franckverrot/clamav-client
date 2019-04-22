@@ -53,5 +53,15 @@ module ClamAV
     def ping
       execute Commands::PingCommand.new
     end
+
+    private
+
+    def instream(io)
+      execute Commands::InstreamCommand.new(io)
+    end
+
+    def scan(file_path)
+      execute Commands::ScanCommand.new(file_path)
+    end
   end
 end
