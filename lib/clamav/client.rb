@@ -54,6 +54,11 @@ module ClamAV
       execute Commands::PingCommand.new
     end
 
+    def safe?(target)
+      return instream(target).virus_name.nil? if target.is_a?(StringIO)
+      scan(target).all? { |file| file.virus_name.nil? }
+    end
+
     private
 
     def instream(io)

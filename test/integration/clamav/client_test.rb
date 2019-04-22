@@ -91,5 +91,32 @@ describe "ClamAV::Client Integration Tests" do
         ClamAV::Commands::InstreamCommand.new(io)
       end
     end
+
+    describe 'safe?' do
+      let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
+
+      it 'returns true if the given io is safe' do
+        io = build_io_obj('innocent.txt')
+        assert client.safe?(io)
+      end
+
+      it 'returns false if the given io is infected' do
+        io = build_io_obj('clamavtest.txt')
+        refute client.safe?(io)
+      end
+
+      it 'returns false if there is any infected file in the given files' do
+        refute client.safe?(dir)
+      end
+
+      it 'returns true if all the give file is safe' do
+        assert client.safe?("#{dir}/innocent.txt")
+      end
+
+      def build_io_obj(file)
+        content = File.read(File.join(dir, file))
+        io = StringIO.new(content)
+      end
+    end
   end
 end
