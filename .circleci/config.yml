@@ -20,15 +20,19 @@ jobs:
   "2.4":
     <<: *shared
     environment:
-      RUBY_VERSION=2.4
+      RUBY_VERSION=2.4-stretch
   "2.5":
     <<: *shared
     environment:
-      RUBY_VERSION=2.5
+      RUBY_VERSION=2.5-stretch
   "2.6":
     <<: *shared
     environment:
-      RUBY_VERSION=2.6
+      RUBY_VERSION=2.6-stretch
+  "2.7":
+    <<: *shared
+    environment:
+      RUBY_VERSION=2.7-slim
 
 workflows:
   version: 2
@@ -37,3 +41,4 @@ workflows:
       - "2.4"
       - "2.5"
       - "2.6"
+      - "2.7"

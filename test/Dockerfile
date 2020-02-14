@@ -1,5 +1,5 @@
 ARG RUBY_VERSION
-FROM ruby:${RUBY_VERSION}-stretch
+FROM ruby:${RUBY_VERSION}
 LABEL maintainer="franck@verrot.fr"
 
 WORKDIR /clamav-client
