@@ -49,5 +49,24 @@ module ClamAV
         ::UNIXSocket.new(unix_socket || '/var/run/clamav/clamd.ctl')
       end
     end
+
+    def ping
+      execute Commands::PingCommand.new
+    end
+
+    def safe?(target)
+      return instream(target).virus_name.nil? if target.is_a?(StringIO)
+      scan(target).all? { |file| file.virus_name.nil? }
+    end
+
+    private
+
+    def instream(io)
+      execute Commands::InstreamCommand.new(io)
+    end
+
+    def scan(file_path)
+      execute Commands::ScanCommand.new(file_path)
+    end
   end
 end

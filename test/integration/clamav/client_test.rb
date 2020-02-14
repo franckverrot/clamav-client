@@ -37,13 +37,17 @@ describe "ClamAV::Client Integration Tests" do
         assert client.execute(ping_command)
         assert client.execute(ping_command)
       end
+
+      it "can be used as #ping" do
+        assert_equal client.execute(ping_command), client.ping
+      end
     end
 
     describe "scan" do
       let(:base_path) { File.expand_path('../../../../', __FILE__) }
+      let(:dir) { File.join(base_path, 'test/fixtures') }
 
       it "can be started" do
-        dir = File.join(base_path, 'test/fixtures')
         results = client.execute(ClamAV::Commands::ScanCommand.new(dir))
 
         expected_results = {
@@ -57,6 +61,10 @@ describe "ClamAV::Client Integration Tests" do
           expected_result = expected_results[result.file]
           assert_equal expected_result, result.class
         end
+      end
+
+      it "can be used as #scan" do
+        assert_equal client.execute(ClamAV::Commands::ScanCommand.new(dir)), client.send(:scan, dir)
       end
     end
 
@@ -73,9 +81,41 @@ describe "ClamAV::Client Integration Tests" do
         client.execute(command).must_equal ClamAV::VirusResponse.new("stream", "ClamAV-Test-Signature")
       end
 
+      it "can be used as #instream" do
+        io = File.open(File.join(dir, 'innocent.txt'))
+        assert_equal client.execute(ClamAV::Commands::InstreamCommand.new(io)), client.send(:instream, io)
+      end
+
       def build_command_for_file(file)
         io = File.open(File.join(dir, file))
         ClamAV::Commands::InstreamCommand.new(io)
+      end
+    end
+
+    describe 'safe?' do
+      let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
+
+      it 'returns true if the given io is safe' do
+        io = build_io_obj('innocent.txt')
+        assert client.safe?(io)
+      end
+
+      it 'returns false if the given io is infected' do
+        io = build_io_obj('clamavtest.txt')
+        refute client.safe?(io)
+      end
+
+      it 'returns false if there is any infected file in the given files' do
+        refute client.safe?(dir)
+      end
+
+      it 'returns true if all the give file is safe' do
+        assert client.safe?("#{dir}/innocent.txt")
+      end
+
+      def build_io_obj(file)
+        content = File.read(File.join(dir, file))
+        io = StringIO.new(content)
       end
     end
   end
