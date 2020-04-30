@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.description   = spec.summary
   spec.homepage      = "https://github.com/franckverrot/clamav-client"
   spec.license       = "GPL-v3"
-  spec.required_ruby_version = '>= 2.1'
+  spec.required_ruby_version = '>= 2.5'
 
   spec.files         = `git ls-files | grep -vE test/fixtures`.split("\n")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
