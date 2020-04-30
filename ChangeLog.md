@@ -1,6 +1,12 @@
-# Unreleased (3.1.0)
+# Unreleased
 
-# 3.0.1
+# 3.2.0
+
+  * Add `ClamAV::Client#ping` as a short-hand for executing a ping
+  * Add `ClamAV::Client#safe?` as a way to check both streams and files
+  * Add support for Ruby 2.7
+
+# 3.1.0
 
   * Drop support for old Rubies (prior to 2.2)
   * Drop fixtures from the gem

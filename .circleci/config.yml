@@ -1,0 +1,44 @@
+version: 2
+
+shared: &shared
+  working_directory: ~/repo
+  docker:
+    - image: docker:18.09.2
+  steps:
+    - checkout
+    - setup_remote_docker
+    - run:
+        name: build image
+        command: |
+          docker build -f test/Dockerfile --build-arg RUBY_VERSION -t franckverrot/clamav-client .
+    - run:
+        name: run tests
+        command: |
+          docker run franckverrot/clamav-client rake
+
+jobs:
+  "2.4":
+    <<: *shared
+    environment:
+      RUBY_VERSION=2.4-stretch
+  "2.5":
+    <<: *shared
+    environment:
+      RUBY_VERSION=2.5-stretch
+  "2.6":
+    <<: *shared
+    environment:
+      RUBY_VERSION=2.6-stretch
+  "2.7":
+    <<: *shared
+    environment:
+      RUBY_VERSION=2.7-slim
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - "2.4"
+      - "2.5"
+      - "2.6"
+      - "2.7"
