@@ -14,10 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'clamav/responses/error_response'
-require 'clamav/responses/success_response'
-require 'clamav/responses/virus_response'
-
 module ClamAV
   module Commands
     class Command

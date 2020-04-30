@@ -14,34 +14,102 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require 'socket'
+require 'timeout'
 
 module ClamAV
   class Connection
-    def initialize(args)
-      socket  = args.fetch(:socket)  { missing_required_argument(:socket) }
-      wrapper = args.fetch(:wrapper) { missing_required_argument(:wrapper) }
+    class ReadTimeoutError < ::ClamAV::Client::ReadTimeoutError; end
+    class WriteTimeoutError < ::ClamAV::Client::WriteTimeoutError; end
 
-      if socket && wrapper
-        @socket = socket
-        @wrapper = wrapper
-      else
-        raise ArgumentError
+    attr_accessor :client
+    attr_accessor :socket
+    attr_accessor :wrapper
+
+    def initialize(attrs={})
+      attrs.each do |attr, value|
+        send("#{attr}=", value)
+      end
+
+      begin
+        validate!
+      rescue => e
+        @client = nil
+        @socket = nil
+        @wrapper = nil
+
+        raise e
+      end
+    end
+
+    def validate!
+      missing_required_argument(:client) if !client
+      missing_required_argument(:socket) if !socket
+      missing_required_argument(:wrapper) if !wrapper
+    end
+
+    [
+      :tcp?,
+      :file,
+      :connect_timeout,
+      :read_timeout,
+      :write_timeout,
+    ].each do |m|
+      define_method(m) do
+        client.send(m)
       end
     end
 
     def establish_connection
-      wrapped_request = @wrapper.wrap_request("IDSESSION")
-      @socket.write wrapped_request
+      write_request("IDSESSION")
     end
 
     def write_request(str)
+      return write_request_with_timeout(str) if write_timeout
+
+      write_request_without_timeout(str)
+    end
+
+    def write_request_without_timeout(str)
       wrapped_request = @wrapper.wrap_request(str)
+
       @socket.write wrapped_request
     end
 
+    def write_request_with_timeout(str)
+      timeout(connect_timeout) do
+        write_request_without_timeout(str)
+      end
+    rescue Timeout::Error => e
+
+      raise WriteTimeoutError.new(e.to_s)
+    end
+
     def read_response
+      return read_response_with_timeout if read_timeout
+
+      read_response_without_timeout
+    end
+
+    def read_response_without_timeout
       @wrapper.read_response(@socket)
+    end
+
+    def read_response_with_timeout
+      timeout(read_timeout) do
+        read_response_without_timeout
+      end
+    rescue Timeout::Error => e
+      raise ReadTimeoutError.new(e.to_s)
+    end
+
+    def disconnect!
+      return true if @socket.nil?
+
+      @socket.closed?
+
+      @socket.closed?.tap do
+        @socket = nil
+      end
     end
 
     def send_request(str)
