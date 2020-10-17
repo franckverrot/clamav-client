@@ -23,7 +23,7 @@ module ClamAV
 
       def initialize(io)
         @io = begin io rescue raise ArgumentError, 'io is required', caller; end
-        @max_chunk_size = ENV['CLAMAV_INSTREAM_MAX_CHUNK_SIZE'] || DEFAULT_MAX_CHUNK_SIZE
+        @max_chunk_size = (ENV['CLAMAV_INSTREAM_MAX_CHUNK_SIZE'] || DEFAULT_MAX_CHUNK_SIZE).to_i
       end
 
       def call(conn)
