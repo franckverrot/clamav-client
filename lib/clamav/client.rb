@@ -56,7 +56,7 @@ module ClamAV
 
     def safe?(target)
       return instream(target).virus_name.nil? if target.is_a?(StringIO)
-      scan(target).all? { |file| file.virus_name.nil? }
+      scan(target).all? { |res| res.virus_name.nil? && res.error_str.nil? }
     end
 
     private
