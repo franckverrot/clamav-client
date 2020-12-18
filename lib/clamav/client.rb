@@ -26,7 +26,7 @@ require "clamav/wrappers/null_termination_wrapper"
 
 module ClamAV
   class Client
-    def self.config_clamav_client(instream_max_chunk_size:)
+    def self.config_client(instream_max_chunk_size:)
       @configuration = ClamAV::Configuration.new
 
       if instream_max_chunk_size

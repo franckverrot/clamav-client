@@ -90,11 +90,11 @@ describe "ClamAV::Client Integration Tests" do
         let(:instream_max_chunk_size) { 2048 }
 
         before do
-          ClamAV::Client.config_clamav_client(instream_max_chunk_size: instream_max_chunk_size)
+          ClamAV::Client.config_client(instream_max_chunk_size: instream_max_chunk_size)
         end
 
         after do
-          ClamAV::Client.config_clamav_client(instream_max_chunk_size: 1024)
+          ClamAV::Client.config_client(instream_max_chunk_size: 1024)
         end
 
         it "can recognize a sane file" do
