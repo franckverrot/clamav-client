@@ -20,7 +20,7 @@ module ClamAV
   module Commands
     class InstreamCommand < Command
 
-      def initialize(io, max_chunk_size = 1024)
+      def initialize(io, max_chunk_size = ClamAV::Client.configuration.instream_max_chunk_size)
         @io = begin io rescue raise ArgumentError, 'io is required', caller; end
         @max_chunk_size = max_chunk_size
       end
