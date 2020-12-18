@@ -98,30 +98,25 @@ describe "ClamAV::Client Integration Tests" do
         end
 
         it "can recognize a sane file" do
-          command = build_command_for_file('innocent.txt', instream_max_chunk_size)
+          command = build_command_for_file('innocent.txt')
           client.execute(command).must_equal ClamAV::SuccessResponse.new("stream")
         end
 
         it "can recognize an infected file" do
-          command = build_command_for_file('clamavtest.txt', instream_max_chunk_size)
+          command = build_command_for_file('clamavtest.txt')
           client.execute(command).must_equal ClamAV::VirusResponse.new("stream", "ClamAV-Test-Signature")
         end
 
         it "can be used as #instream" do
           io = File.open(File.join(dir, 'innocent.txt'))
-          instream_command = ClamAV::Commands::InstreamCommand.new(io, instream_max_chunk_size)
+          instream_command = ClamAV::Commands::InstreamCommand.new(io)
           assert_equal client.execute(instream_command), client.send(:instream, io)
         end
       end
 
-      def build_command_for_file(file, instream_max_chunk_size = nil)
+      def build_command_for_file(file)
         io = File.open(File.join(dir, file))
-
-        if instream_max_chunk_size
-          ClamAV::Commands::InstreamCommand.new(io, instream_max_chunk_size)
-        else
-          ClamAV::Commands::InstreamCommand.new(io)
-        end
+        ClamAV::Commands::InstreamCommand.new(io)
       end
     end
 

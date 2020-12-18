@@ -94,6 +94,20 @@ client.execute(ClamAV::Commands::InstreamCommand.new(io))
 # => [#<ClamAV::SuccessResponse:0x007fe471cabe50 @file="stream">]
 ```
 
+In the case you want to use a custom value of `max_chunk_size` in `InstreamCommand`, following the below:
+
+```ruby
+# clamav client config
+ClamAV::Client.config(instream_max_chunk_size: 2048)
+
+# Using the same above of INSTREAM
+client = ClamAV::Client.new
+
+io = StringIO.new('some data')
+client.execute(ClamAV::Commands::InstreamCommand.new(io))
+# => [#<ClamAV::SuccessResponse:0x007fe471cabe50 @file="stream">]
+```
+
 ### Custom commands
 
 Custom commands can be given to the client. The contract between the client
