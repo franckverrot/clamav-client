@@ -87,11 +87,14 @@ describe "ClamAV::Client Integration Tests" do
       end
 
       describe "instream_comment with custom instream_max_chunk_size" do
-        let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
         let(:instream_max_chunk_size) { 2048 }
 
         before do
-          ClamAV::Client.config_clamav_client(instream_max_chunk_size: 2048)
+          ClamAV::Client.config_clamav_client(instream_max_chunk_size: instream_max_chunk_size)
+        end
+
+        after do
+          ClamAV::Client.config_clamav_client(instream_max_chunk_size: 1024)
         end
 
         it "can recognize a sane file" do
@@ -115,9 +118,9 @@ describe "ClamAV::Client Integration Tests" do
         io = File.open(File.join(dir, file))
 
         if instream_max_chunk_size
-          ClamAV::Commands::InstreamCommand.new(io)
-        else
           ClamAV::Commands::InstreamCommand.new(io, instream_max_chunk_size)
+        else
+          ClamAV::Commands::InstreamCommand.new(io)
         end
       end
     end

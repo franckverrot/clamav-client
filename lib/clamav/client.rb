@@ -77,7 +77,7 @@ module ClamAV
     private
 
     def instream(io)
-      execute Commands::InstreamCommand.new(io, @configuration.instream_max_chunk_size)
+      execute Commands::InstreamCommand.new(io)
     end
 
     def scan(file_path)
