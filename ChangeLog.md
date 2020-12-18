@@ -1,5 +1,9 @@
 # Unreleased
 
+# 3.2.1
+
+  * Add a configuration to custom `max_chunk_size` in `InstreamCommand`
+
 # 3.2.0
 
   * Add `ClamAV::Client#ping` as a short-hand for executing a ping

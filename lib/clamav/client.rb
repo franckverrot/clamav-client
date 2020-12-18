@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 require "clamav/connection"
+require "clamav/configuration"
 require "clamav/commands/ping_command"
 require "clamav/commands/quit_command"
 require "clamav/commands/scan_command"
@@ -25,8 +26,22 @@ require "clamav/wrappers/null_termination_wrapper"
 
 module ClamAV
   class Client
+    def self.config_client(instream_max_chunk_size:)
+      @configuration = ClamAV::Configuration.new
+
+      if instream_max_chunk_size
+        @configuration.instream_max_chunk_size = instream_max_chunk_size.to_i
+      end
+      @configuration
+    end
+
+    def self.configuration
+      @configuration || ClamAV::Configuration.new
+    end
+
     def initialize(connection = default_connection)
       @connection = connection
+      @configuration = ClamAV::Client.configuration
       connection.establish_connection
     end
 
