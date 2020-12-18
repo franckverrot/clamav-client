@@ -36,27 +36,18 @@ describe "INSTREAM command" do
   end
 
   it "can specify the size of read chunks" do
-    mock_env("CLAMAV_INSTREAM_MAX_CHUNK_SIZE" => '1') do
-      @conn.expect(:write_request, nil, ["INSTREAM"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01h"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01e"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01l"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01l"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01o"])
-      @conn.expect(:raw_write, nil, ["\x00\x00\x00\x00"])
-      @conn.expect(:read_response, '1: stream: OK', [])
+    chunk_size = 1
 
-      assert ClamAV::Commands::InstreamCommand.new(@io).call(@conn)
-    end
-  end
+    @conn.expect(:write_request, nil, ["INSTREAM"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01h"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01e"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01l"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01l"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x01o"])
+    @conn.expect(:raw_write, nil, ["\x00\x00\x00\x00"])
+    @conn.expect(:read_response, '1: stream: OK', [])
 
-  def mock_env(partial_env_hash)
-    old = ENV.to_hash
-    ENV.update partial_env_hash
-    begin
-      yield
-    ensure
-      ENV.replace old
-    end
+    assert ClamAV::Commands::InstreamCommand.
+      new(@io, chunk_size).call(@conn)
   end
 end
