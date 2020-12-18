@@ -92,6 +92,37 @@ describe "ClamAV::Client Integration Tests" do
       end
     end
 
+    describe "instream_comment with custom instream_max_chunk_size" do
+      let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
+      let(:instream_max_chunk_size) { 2048 }
+      let(:client) {
+        ClamAV::Client.new(
+          configuration: ClamAV::Configuration.new(instream_max_chunk_size: instream_max_chunk_size)
+        )
+      }
+
+      it "can recognize a sane file" do
+        command = build_command_for_file('innocent.txt', instream_max_chunk_size)
+        client.execute(command).must_equal ClamAV::SuccessResponse.new("stream")
+      end
+
+      it "can recognize an infected file" do
+        command = build_command_for_file('clamavtest.txt', instream_max_chunk_size)
+        client.execute(command).must_equal ClamAV::VirusResponse.new("stream", "ClamAV-Test-Signature")
+      end
+
+      it "can be used as #instream" do
+        io = File.open(File.join(dir, 'innocent.txt'))
+        instream_command = ClamAV::Commands::InstreamCommand.new(io, instream_max_chunk_size)
+        assert_equal client.execute(instream_command), client.send(:instream, io)
+      end
+
+      def build_command_for_file(file, max_chunk_size)
+        io = File.open(File.join(dir, file))
+        ClamAV::Commands::InstreamCommand.new(io, max_chunk_size)
+      end
+    end
+
     describe 'safe?' do
       let(:dir) { File.expand_path('../../../../test/fixtures', __FILE__) }
 
