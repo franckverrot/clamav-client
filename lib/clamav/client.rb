@@ -25,8 +25,9 @@ require "clamav/wrappers/null_termination_wrapper"
 
 module ClamAV
   class Client
-    def initialize(connection = default_connection)
+    def initialize(connection = default_connection, configuration: Configuration.new)
       @connection = connection
+      @configuratin = configuration
       connection.establish_connection
     end
 
@@ -62,7 +63,7 @@ module ClamAV
     private
 
     def instream(io)
-      execute Commands::InstreamCommand.new(io)
+      execute Commands::InstreamCommand.new(io, @configuration)
     end
 
     def scan(file_path)
