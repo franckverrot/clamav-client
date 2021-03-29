@@ -33,6 +33,10 @@ jobs:
     <<: *shared
     environment:
       RUBY_VERSION=2.7-slim
+  "3.0":
+    <<: *shared
+    environment:
+      RUBY_VERSION=3.0
 
 workflows:
   version: 2
@@ -42,3 +46,4 @@ workflows:
       - "2.5"
       - "2.6"
       - "2.7"
+      - "3.0"
